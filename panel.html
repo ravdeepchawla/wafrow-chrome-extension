@@ -1,0 +1,52 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="css/pico.blue.min.css">
+    </head>
+    <body>
+        <header class="container">
+            <nav>
+                <ul>
+                    <li><a href="/" class="logo"><kbd>w_w</kbd></a></li>
+                </ul>
+            </nav>
+        </header>
+        <main class="container">
+        <h1>Experiment Setup</h1>
+        <form>
+            <fieldset>
+              <label>
+                Experiment Name
+                <input
+                  name="experiment_name"
+                  placeholder="Unique name for reporting results in the dashboard."
+                  aria-label="Experiment Name"
+                />
+              </label>
+            </fieldset>
+
+            <fieldset>
+                <label>
+                  Element Selector
+                  <input
+                    name="selected_element"
+                    id="selected_element"
+                    placeholder="Select element that you'd like to AB test"
+                    aria-label="Disabled input"
+                    disabled
+                  />
+                </label>
+              </fieldset>
+          
+            <label>
+                <input name="opt-in" type="checkbox" role="switch" checked />
+                Receive news and offers
+              </label>
+            <input
+              type="submit"
+              value="Setup Experiment"
+            />
+          </form>
+        </main>
+      <script src="panel.js"></script>
+    </body>
+</html>
