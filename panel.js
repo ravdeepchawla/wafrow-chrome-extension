@@ -2,9 +2,16 @@
 chrome.devtools.panels.elements.onSelectionChanged.addListener(updateElementDetails);
 
 function updateElementDetails() {
-  chrome.devtools.inspectedWindow.eval('$0 === document.body', function(result) {
-    console.log(result);
-  });
+  chrome.devtools.inspectedWindow.eval(
+    `(function() {
+      const selectedElement = $0; 
+      if (!selectedElement) return 'No element selected';
+      return selectedElement;
+    })()`,
+    function(result) {
+      console.log(result);
+    }
+  );
 }
 
 function buildSelector(element) {

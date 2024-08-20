@@ -31,22 +31,46 @@
                     name="selected_element"
                     id="selected_element"
                     placeholder="Select element that you'd like to AB test"
-                    aria-label="Disabled input"
-                    disabled
                   />
                 </label>
-              </fieldset>
+            </fieldset>
+
+            <fieldset>
+              <label>
+                Control: Existing copy
+                <input
+                  name="control"
+                  id="control"
+                  placeholder=""
+                  aria-label="Disabled input"
+                  disabled
+                />
+              </label>
+            </fieldset>
+
+            <fieldset>
+              <label>
+                Test: Wafrow AI copy
+                <input
+                  name="treatment"
+                  id="treatment"
+                  placeholder=""
+                />
+              </label>
+            </fieldset>
           
             <label>
-                <input name="opt-in" type="checkbox" role="switch" checked />
-                Receive news and offers
-              </label>
+              Rollout Percentage
+              <input type="range" value="100" id="rollout"/>
+              <small>Traffic is always split equally between variants for balance.</small>
+            </label>
+           
             <input
               type="submit"
               value="Setup Experiment"
             />
           </form>
         </main>
-      <script src="panel.js"></script>
+      <script src="1panel.js"></script>
     </body>
 </html>

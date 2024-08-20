@@ -8,10 +8,10 @@ function updateElementDetails() {
         return el.innerText;
       })()`,
       function(result, isException) {
-        const input = document.getElementById('input');
-        input.innerText = result;
+        const input = document.getElementById('control');
+        input.value = result;
 
-        makeGroqRequest(input.innerText);
+        makeGroqRequest(input.value);
       }
     );
   }
@@ -27,7 +27,7 @@ async function makeGroqRequest(prompt) {
     const messages = [
         {
             role: "system",
-            content: "You are a marketing copywriter refining marketing copy on a ecommerce website. Stick to the following 3 instructions explicitly and do not deviate from them. 1. Provide 3 distinct short, punchy marketing messages as alternatives to the user prompt. 2. Do not exceeding the character count of the user prompt. 3. Respond in the language of the user. Remember that being short and punchy is important and the original message's intent should not be lost.",
+            content: "You are a marketing copywriter. Provide one short marketing message as an alternative for the user prompt in the same tone of voice as the original. Do not exceed the character count of the user prompt in the response.",
         },
         {
             role: "user",
@@ -61,10 +61,10 @@ async function makeGroqRequest(prompt) {
           'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: "llama3-groq-70b-8192-tool-use-preview", // or any other model you want to use
+          model: "llama3-groq-70b-8192-tool-use-preview", // llama3-groq-70b-8192-tool-use-preview
           messages: messages,
           tools: tools,
-          temperature: 1,
+          temperature: 0.5,
           tool_choice: "auto",
           max_tokens: 1024
         })
@@ -84,8 +84,8 @@ async function makeGroqRequest(prompt) {
         return li.outerHTML;
      }) */
 
-      const output = document.getElementById('output');
-      output.innerHTML = alternatives; // alternatives.join('');
+      const output = document.getElementById('treatment');
+      output.value = alternatives; // alternatives.join('');
       
       return data;
     } catch (error) {
