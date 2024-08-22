@@ -75,14 +75,8 @@ async function makeGroqRequest(prompt) {
       }
   
       const data = await response.json();
-      console.log(data);
+      // console.log(data);
       const alternatives = data.choices[0].message.content;
-
-      /* const alternatives = data.choices[0].message.content.map(function(item) {
-        const li = document.createElement('li');
-        li.textContent = JSON.parse(item.function.arguments).outputString;
-        return li.outerHTML;
-     }) */
 
       const output = document.getElementById('treatment');
       output.value = alternatives; // alternatives.join('');
@@ -93,3 +87,100 @@ async function makeGroqRequest(prompt) {
       return null;
     }
   }
+
+
+document.addEventListener("DOMContentLoaded", (event) => {  
+
+  const rollout = document.getElementById('rollout');
+  rollout.addEventListener('input', () => {
+    rolloutpercentage.textContent = rollout.value;
+  });
+
+  const form = document.getElementById("createExperiment");
+
+  form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const formData = new FormData(form);
+      const data = [];
+
+      for (const [key, value] of formData.entries()) {
+        data[key] = value;
+      }
+
+      const requestBody = {};
+      const rolloutpercentage = data['rollout'];
+    
+      const controlString = JSON.stringify({
+        "textString" : data['control']
+      })
+
+      const treatmentString = JSON.stringify({
+        "textString" : data['treatment']
+      })
+
+      const filters =  {
+        "groups": [
+            {
+                "variant": null,
+                "properties": [],
+                "rollout_percentage": rolloutpercentage
+            }
+        ],
+        "payloads": {
+            "control": controlString,
+            "treatment": treatmentString,
+        },
+        "multivariate": {
+            "variants": [
+                {
+                    "key": "control",
+                    "name": "control",
+                    "rollout_percentage": 50
+                },
+                {
+                    "key": "treatment",
+                    "name": "treatment",
+                    "rollout_percentage": 50
+                }
+            ]
+        }
+    }
+
+    requestBody['name'] = data['organizationID'];
+    requestBody['key'] = data['experimentName'];
+    requestBody['filters'] = JSON.stringify(filters);
+      
+    // console.log(requestBody);
+
+    callAPI(requestBody)
+
+  });
+});
+
+async function callAPI(requestBody) {
+
+  const button = document.getElementById('setupExperiment');
+  const responseMessage = document.getElementById('response');
+
+  button.setAttribute('aria-busy', 'true');
+  
+  try {
+    //TODO: switch to public API
+      const response = await fetch("http://127.0.0.1:8001/api/setupExperiment", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json"
+          },
+          body: JSON.stringify(requestBody)
+      });
+      const data = await response.json();
+      
+      responseMessage.textContent = data.message;
+      console.log(data);
+  } catch (error) {
+      console.error("Error:", error);
+      response.style.display = "none";
+  } finally {
+    button.setAttribute('aria-busy', 'false');
+  }
+}

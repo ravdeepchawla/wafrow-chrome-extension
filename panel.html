@@ -12,14 +12,16 @@
         </header>
         <main class="container">
         <h1>Experiment Setup</h1>
-        <form>
+        <form id="createExperiment">
             <fieldset>
               <label>
                 Experiment Name
                 <input
-                  name="experiment_name"
+                  name="experimentName"
+                  id="experimentName"
                   placeholder="Unique name for reporting results in the dashboard."
                   aria-label="Experiment Name"
+                  required
                 />
               </label>
             </fieldset>
@@ -28,8 +30,8 @@
                 <label>
                   Element Selector
                   <input
-                    name="selected_element"
-                    id="selected_element"
+                    name="selectedElement"
+                    id="selectedElement"
                     placeholder="Select element that you'd like to AB test"
                   />
                 </label>
@@ -42,8 +44,8 @@
                   name="control"
                   id="control"
                   placeholder=""
-                  aria-label="Disabled input"
-                  disabled
+                  aria-readonly="true"
+                  readonly
                 />
               </label>
             </fieldset>
@@ -60,16 +62,23 @@
             </fieldset>
           
             <label>
-              Rollout Percentage
-              <input type="range" value="100" id="rollout"/>
-              <small>Traffic is always split equally between variants for balance.</small>
+              Rollout Percentage: <span id="rolloutpercentage">100</span>
+              <input type="range" value="100" id="rollout" name="rollout" />
+              <small>Traffic is split equally between variants for balance.</small>
             </label>
            
+            <input 
+              type="hidden"
+              name="organizationID" 
+              value="123">
+
             <input
               type="submit"
               value="Setup Experiment"
+              id="setupExperiment"
             />
           </form>
+          <ins id="response"></ins>
         </main>
       <script src="1panel.js"></script>
     </body>
