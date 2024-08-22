@@ -21,52 +21,16 @@ chrome.devtools.panels.elements.onSelectionChanged.addListener(updateElementDeta
 
 async function makeGroqRequest(prompt) {
 
-    const apiKey = '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';
-    const apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
-
-    const messages = [
-        {
-            role: "system",
-            content: "You are a marketing copywriter. Provide one short marketing message as an alternative for the user prompt in the same tone of voice as the original. Do not exceed the character count of the user prompt in the response.",
-        },
-        {
-            role: "user",
-            content: prompt,
-        }
-    ];
-
-    const tools = [{
-        type: "function",
-        function: {
-          name: "get_structured_data",
-          description: "Alternative marketing messages for the user prompt",
-          parameters: {
-            type: "object",
-            properties: {
-                outputString: {
-                    type: "string",
-                    description: "The alternative marketing messages",
-                }
-            },
-            required: ["outputString"]
-          }
-        }
-      }];
+    const apiUrl = 'http://127.0.0.1:8001/api/getAlternative';
   
     try {
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: "llama3-groq-70b-8192-tool-use-preview", // llama3-groq-70b-8192-tool-use-preview
-          messages: messages,
-          tools: tools,
-          temperature: 0.5,
-          tool_choice: "auto",
-          max_tokens: 1024
+          "prompt": prompt
         })
       });
   
@@ -87,7 +51,6 @@ async function makeGroqRequest(prompt) {
       return null;
     }
   }
-
 
 document.addEventListener("DOMContentLoaded", (event) => {  
 
