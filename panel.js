@@ -21,7 +21,7 @@ chrome.devtools.panels.elements.onSelectionChanged.addListener(updateElementDeta
 
 async function makeGroqRequest(prompt) {
 
-    const apiUrl = 'http://127.0.0.1:8001/api/getAlternative';
+    const apiUrl = 'https://wafrow.com/api/getAlternative';
   
     try {
       const response = await fetch(apiUrl, {
@@ -129,7 +129,7 @@ async function callAPI(requestBody) {
   
   try {
     //TODO: switch to public API
-      const response = await fetch("http://127.0.0.1:8001/api/setupExperiment", {
+      const response = await fetch("https://wafrow.com/api/setupExperiment", {
           method: "POST",
           headers: {
               "Content-Type": "application/json"
