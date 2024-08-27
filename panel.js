@@ -5,13 +5,55 @@ function updateElementDetails() {
         const el = $0; 
         if (!el) return 'No element selected';
         
-        return el.textContent;
+        const getXPath = function(element) {
+        if (element && element.nodeType === Node.ELEMENT_NODE) {
+          // If the element has an id, use it
+          if (element.id) {
+            return '//*[@id="' + element.id + '"]';
+          }
+          
+          // Get all siblings of the same type
+          const siblings = Array.from(element.parentNode.childNodes)
+            .filter(node => node.nodeType === Node.ELEMENT_NODE && node.tagName === element.tagName);
+          
+          // If the element has siblings of the same type, we need to differentiate
+          if (siblings.length > 1) {
+            const index = siblings.indexOf(element) + 1;
+            return getXPath(element.parentNode) + '/' + element.tagName.toLowerCase() + '[' + index + ']';
+          } else {
+            return getXPath(element.parentNode) + '/' + element.tagName.toLowerCase();
+          }
+        }
+        // Handle cases where we've reached the root or an invalid node
+        else {
+          return '';
+          }
+        };
+
+        const getFullXPath = function(element) {
+          let xpath = getXPath(element);
+          
+          // Ensure the XPath starts with '/'
+          if (xpath && xpath.charAt(0) !== '/') {
+            xpath = '/' + xpath;
+          }
+          
+          // If XPath is empty (e.g., for the document itself), return '/html'
+          return xpath || '/html';
+        };
+
+        return [el.textContent, getFullXPath(el)]
       })()`,
       function(result, isException) {
+        if (!isException) {
         const input = document.getElementById('control');
-        input.value = result;
+        input.value = result[0];
+        
+        const elSelector = document.getElementById('selectedElement');
+        elSelector.value = result[1];
 
         makeGroqRequest(input.value);
+        }
       }
     );
   }
