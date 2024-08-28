@@ -37,7 +37,7 @@
                 </label>
             </fieldset>
 
-            <fieldset>
+            <fieldset role="group">
               <label>
                 Control: Existing copy
                 <input
@@ -48,6 +48,20 @@
                   readonly
                 />
               </label>
+              <label>
+                Language
+                <select name="language" id="language" aria-label="language" required>
+                  <option value="en" selected>en</option>
+                  <option value="en-GB" >en-GB</option>
+                  <option value="en-US" >en-US</option>
+                  <option value="de" >de</option>
+                  <option value="de-AT" >de-AT</option>
+                  <option value="de-CH" >de-CH</option>
+                  <option value="de-DE" >de-DE</option>
+                  <option value="fr" >fr</option>
+                  <option value="fr-CA" >fr-CA</option>
+                  <option value="fr-FR" >fr-FR</option>
+                </select>
             </fieldset>
 
             <fieldset>
@@ -69,6 +83,7 @@
            
             <input 
               type="hidden"
+              id="organizationID"
               name="organizationID" 
               value="123">
 

@@ -1,67 +1,72 @@
 
 function updateElementDetails() {
-    chrome.devtools.inspectedWindow.eval(
-      `(function() {
-        const el = $0; 
-        if (!el) return 'No element selected';
-        
-        const getXPath = function(element) {
-        if (element && element.nodeType === Node.ELEMENT_NODE) {
-          // If the element has an id, use it
-          if (element.id) {
-            return '//*[@id="' + element.id + '"]';
-          }
-          
-          // Get all siblings of the same type
-          const siblings = Array.from(element.parentNode.childNodes)
-            .filter(node => node.nodeType === Node.ELEMENT_NODE && node.tagName === element.tagName);
-          
-          // If the element has siblings of the same type, we need to differentiate
-          if (siblings.length > 1) {
-            const index = siblings.indexOf(element) + 1;
-            return getXPath(element.parentNode) + '/' + element.tagName.toLowerCase() + '[' + index + ']';
-          } else {
-            return getXPath(element.parentNode) + '/' + element.tagName.toLowerCase();
-          }
+
+  chrome.devtools.inspectedWindow.eval(
+    `(function() {
+      const el = $0; 
+      if (!el || el === document.body) return;
+      
+      const getXPath = function(element) {
+      if (element && element.nodeType === Node.ELEMENT_NODE) {
+        // If the element has an id, use it
+        if (element.id) {
+          return '//*[@id="' + element.id + '"]';
         }
-        // Handle cases where we've reached the root or an invalid node
-        else {
-          return '';
-          }
-        };
-
-        const getFullXPath = function(element) {
-          let xpath = getXPath(element);
-          
-          // Ensure the XPath starts with '/'
-          if (xpath && xpath.charAt(0) !== '/') {
-            xpath = '/' + xpath;
-          }
-          
-          // If XPath is empty (e.g., for the document itself), return '/html'
-          return xpath || '/html';
-        };
-
-        return [el.textContent, getFullXPath(el)]
-      })()`,
-      function(result, isException) {
-        if (!isException) {
-        const input = document.getElementById('control');
-        input.value = result[0];
         
-        const elSelector = document.getElementById('selectedElement');
-        elSelector.value = result[1];
-
-        makeGroqRequest(input.value);
+        // Get all siblings of the same type
+        const siblings = Array.from(element.parentNode.childNodes)
+          .filter(node => node.nodeType === Node.ELEMENT_NODE && node.tagName === element.tagName);
+        
+        // If the element has siblings of the same type, we need to differentiate
+        if (siblings.length > 1) {
+          const index = siblings.indexOf(element) + 1;
+          return getXPath(element.parentNode) + '/' + element.tagName.toLowerCase() + '[' + index + ']';
+        } else {
+          return getXPath(element.parentNode) + '/' + element.tagName.toLowerCase();
         }
       }
-    );
-  }
+      // Handle cases where we've reached the root or an invalid node
+      else {
+        return '';
+        }
+      };
+
+      const getFullXPath = function(element) {
+        let xpath = getXPath(element);
+        
+        // Ensure the XPath starts with '/'
+        if (xpath && xpath.charAt(0) !== '/') {
+          xpath = '/' + xpath;
+        }
+        
+        // If XPath is empty (e.g., for the document itself), return '/html'
+        return xpath || '/html';
+      };
+
+      return [el.textContent, getFullXPath(el)]
+    })()`,
+    function(result, isException) {
+      if (!isException) {
+        if (result !== null) {
+          const input = document.getElementById('control');
+          input.value = result[0];
+          
+          const elSelector = document.getElementById('selectedElement');
+          elSelector.value = result[1];
+
+          langSelector = document.getElementById('language');
+
+          makeGroqRequest(input.value, langSelector.value);
+        }
+      }
+    }
+  );
+}
 
 // Listen for element selection changes
 chrome.devtools.panels.elements.onSelectionChanged.addListener(updateElementDetails);
 
-async function makeGroqRequest(prompt) {
+async function makeGroqRequest(prompt, language) {
 
     const apiUrl = 'https://wafrow.com/api/getAlternative';
   
@@ -72,7 +77,8 @@ async function makeGroqRequest(prompt) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          "prompt": prompt
+          "prompt": prompt,
+          "lang": language
         })
       });
   
@@ -101,6 +107,12 @@ document.addEventListener("DOMContentLoaded", (event) => {
     rolloutpercentage.textContent = rollout.value;
   });
 
+  getLanguage()
+    .then(language => { 
+      const langSelector = document.getElementById('language');
+      langSelector.value = language;
+    })
+
   const form = document.getElementById("createExperiment");
 
   form.addEventListener("submit", (event) => {
@@ -113,21 +125,32 @@ document.addEventListener("DOMContentLoaded", (event) => {
       }
 
       const requestBody = {};
-      const rolloutpercentage = data['rollout'];
+      const rolloutpercentage = parseInt(data['rollout']);
     
       const controlString = JSON.stringify({
-        "textString" : data['control']
+        "textString" : data['control'],
+        "elementSelector": data['selectedElement']
       })
 
       const treatmentString = JSON.stringify({
-        "textString" : data['treatment']
+        "textString" : data['treatment'],
+        "elementSelector": data['selectedElement']
       })
 
       const filters =  {
         "groups": [
             {
                 "variant": null,
-                "properties": [],
+                "properties": [
+                    {
+                        "key": "orgID",
+                        "type": "person",
+                        "value": [
+                          data['organizationID']
+                        ],
+                        "operator": "exact"
+                    }
+                ],
                 "rollout_percentage": rolloutpercentage
             }
         ],
@@ -188,4 +211,24 @@ async function callAPI(requestBody) {
   } finally {
     button.setAttribute('aria-busy', 'false');
   }
+}
+
+function getLanguage() {
+  return new Promise((resolve, reject) => {
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+      if (chrome.runtime.lastError) {
+        reject(new Error(chrome.runtime.lastError.message));
+      } else if (tabs.length === 0) {
+        reject(new Error("No active tab found"));
+      } else {
+        chrome.tabs.detectLanguage(tabs[0].id, function(language) {
+          if (chrome.runtime.lastError) {
+            reject(new Error(chrome.runtime.lastError.message));
+          } else {
+            resolve(language);
+          }
+        });
+      }
+    });
+  });
 }
