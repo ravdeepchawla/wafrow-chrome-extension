@@ -47,7 +47,7 @@ function updateElementDetails() {
     })()`,
     function(result, isException) {
       if (!isException) {
-        if (result !== null) {
+        if (Array.isArray(result) && result.length > 0) {
           const input = document.getElementById('control');
           input.value = result[0];
           
@@ -68,7 +68,7 @@ chrome.devtools.panels.elements.onSelectionChanged.addListener(updateElementDeta
 
 async function makeGroqRequest(prompt, language) {
 
-    const apiUrl = 'https://wafrow.com/api/getAlternative';
+    const apiUrl = 'http://127.0.0.1:8000/api/getAlternative';
   
     try {
       const response = await fetch(apiUrl, {
@@ -102,6 +102,18 @@ async function makeGroqRequest(prompt, language) {
 
 document.addEventListener("DOMContentLoaded", (event) => {  
 
+  userKey()
+    .then((result) => {
+      const organizationID = document.getElementById('organizationID');
+      organizationID.value = result.userID;
+
+      const notLoggedIn = document.getElementById('notLoggedIn');
+      notLoggedIn.style.display = "none";
+
+      const loggedIn = document.getElementById('loggedIn');
+      loggedIn.style.display = "block";
+    })
+  
   const rollout = document.getElementById('rollout');
   rollout.addEventListener('input', () => {
     rolloutpercentage.textContent = rollout.value;
@@ -228,6 +240,19 @@ function getLanguage() {
             resolve(language);
           }
         });
+      }
+    });
+  });
+}
+
+function userKey() {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get(["userID"], (result) => {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError);
+      } else {
+        // console.log(result);
+        resolve(result);
       }
     });
   });

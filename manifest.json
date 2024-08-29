@@ -8,5 +8,16 @@
         "48": "images/48.png",
         "128": "images/128.png"
     },
-    "devtools_page": "devtools.html"
+    "devtools_page": "devtools.html",
+    "permissions": [
+        "tabs",
+        "storage",
+        "scripting"
+      ],
+    "host_permissions": [
+        "http://127.0.0.1:8000/*"
+    ],
+    "background": {
+        "service_worker": "background.js"
+    }
 }
