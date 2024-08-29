@@ -95,7 +95,7 @@ async function makeGroqRequest(prompt, language) {
       
       return data;
     } catch (error) {
-      console.error('Error:', error);
+      // console.error('Error:', error);
       return null;
     }
   }
@@ -104,6 +104,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   userKey()
     .then((result) => {
+      if (result.userID !== undefined) {
       const organizationID = document.getElementById('organizationID');
       organizationID.value = result.userID;
 
@@ -112,6 +113,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
       const loggedIn = document.getElementById('loggedIn');
       loggedIn.style.display = "block";
+      }
     })
   
   const rollout = document.getElementById('rollout');
@@ -216,9 +218,9 @@ async function callAPI(requestBody) {
       const data = await response.json();
       
       responseMessage.textContent = data.message;
-      console.log(data);
+      // console.log(data);
   } catch (error) {
-      console.error("Error:", error);
+      // console.error("Error:", error);
       response.style.display = "none";
   } finally {
     button.setAttribute('aria-busy', 'false');

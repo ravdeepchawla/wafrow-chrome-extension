@@ -6,13 +6,13 @@ function injectContentScript(tabId) {
     });
   }
   
-  // Function to be injected into the page
-  function getLocalStorageData() {
-    const data = localStorage.getItem('userID');
-    if (data) {
-      chrome.runtime.sendMessage({ type: 'localStorageData', data: data });
-    }
-  }
+// Function to be injected into the page
+function getLocalStorageData() {
+const data = localStorage.getItem('userID');
+if (data) {
+    chrome.runtime.sendMessage({ type: 'localStorageData', data: data });
+}
+}
    
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     if (changeInfo.status === 'complete' && tab.active) {
