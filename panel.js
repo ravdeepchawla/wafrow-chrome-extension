@@ -187,7 +187,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
             ]
         }
     }
-
+ 
     requestBody['name'] = data['organizationID'];
     requestBody['key'] = data['experimentName'];
     requestBody['filters'] = JSON.stringify(filters);
@@ -208,7 +208,7 @@ async function callAPI(requestBody) {
   
   try {
     //TODO: switch to public API
-      const response = await fetch("https://wafrow.com/api/setupExperiment", {
+      const response = await fetch("http://127.0.0.1:8000/api/setupExperiment", {
           method: "POST",
           headers: {
               "Content-Type": "application/json"
@@ -218,9 +218,9 @@ async function callAPI(requestBody) {
       const data = await response.json();
       
       responseMessage.textContent = data.message;
-      // console.log(data);
+      console.log(data);
   } catch (error) {
-      // console.error("Error:", error);
+      console.error("Error:", error);
       response.style.display = "none";
   } finally {
     button.setAttribute('aria-busy', 'false');
