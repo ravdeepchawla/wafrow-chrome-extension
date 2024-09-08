@@ -68,7 +68,7 @@ chrome.devtools.panels.elements.onSelectionChanged.addListener(updateElementDeta
 
 async function makeGroqRequest(prompt, language) {
 
-    const apiUrl = 'http://127.0.0.1:8000/api/getAlternative';
+    const apiUrl = 'http://127.0.0.1:8004/api/getAlternative';
   
     try {
       const response = await fetch(apiUrl, {
@@ -121,10 +121,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
     rolloutpercentage.textContent = rollout.value;
   });
 
-  getLanguage()
-    .then(language => { 
+  getLanguageURL()
+    .then(result => { 
       const langSelector = document.getElementById('language');
-      langSelector.value = language;
+      langSelector.value = result.language;
+
+      const startURL = document.getElementById('startURL');
+      const goalURL = document.getElementById('goalURL')
+      startURL.value = result.url;
+      goalURL.placeholder = result.url;
     })
 
   const form = document.getElementById("createExperiment");
@@ -191,7 +196,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
     requestBody['name'] = data['organizationID'];
     requestBody['key'] = data['experimentName'];
     requestBody['filters'] = JSON.stringify(filters);
-      
+    requestBody['language'] = data['language'];
+    requestBody['startURL'] = data['startURL'];
+    requestBody['goalURL'] = data['goalURL'];
+
     // console.log(requestBody);
 
     callAPI(requestBody)
@@ -203,12 +211,15 @@ async function callAPI(requestBody) {
 
   const button = document.getElementById('setupExperiment');
   const responseMessage = document.getElementById('response');
+  const errorMessage = document.getElementById('error');
 
-  button.setAttribute('aria-busy', 'true');
-  
   try {
     //TODO: switch to public API
-      const response = await fetch("http://127.0.0.1:8000/api/setupExperiment", {
+      button.setAttribute('aria-busy', 'true');
+      responseMessage.textContent = "";
+      errorMessage.textContent = "";
+
+      const response = await fetch("http://127.0.0.1:8004/api/setupExperiment", {
           method: "POST",
           headers: {
               "Content-Type": "application/json"
@@ -218,16 +229,20 @@ async function callAPI(requestBody) {
       const data = await response.json();
       
       responseMessage.textContent = data.message;
-      console.log(data);
+
+      if (data.error.detail) {
+        errorMessage.textContent = data.error.detail;
+      }
+      //console.log(data);
   } catch (error) {
-      console.error("Error:", error);
-      response.style.display = "none";
+      console.error(error);
+      responseMessage.textContent = data.message;
   } finally {
     button.setAttribute('aria-busy', 'false');
   }
 }
 
-function getLanguage() {
+function getLanguageURL() {
   return new Promise((resolve, reject) => {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
       if (chrome.runtime.lastError) {
@@ -239,7 +254,7 @@ function getLanguage() {
           if (chrome.runtime.lastError) {
             reject(new Error(chrome.runtime.lastError.message));
           } else {
-            resolve(language);
+            resolve({language: language, url: tabs[0].url});
           }
         });
       }

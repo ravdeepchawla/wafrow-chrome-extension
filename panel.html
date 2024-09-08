@@ -58,6 +58,7 @@
                   placeholder=""
                   aria-readonly="true"
                   readonly
+                  required
                 />
               </label>
               <label>
@@ -83,15 +84,30 @@
                   name="treatment"
                   id="treatment"
                   placeholder=""
+                  required
                 />
               </label>
             </fieldset>
           
+            <fieldset>
             <label>
               Rollout Percentage: <span id="rolloutpercentage">100</span>
               <input type="range" value="100" id="rollout" name="rollout" />
               <small>Traffic is split equally between variants for balance.</small>
             </label>
+          </fieldset>
+
+            <fieldset>
+              <label>
+                Goal URL (where successful users reach):
+                <input
+                  name="goalURL"
+                  id="goalURL"
+                  placeholder="https://example.com/success"
+                  required
+                />
+              </label>
+            </fieldset>
            
             <input 
               type="hidden"
@@ -99,12 +115,20 @@
               name="organizationID" 
               value="">
 
+              <input 
+              type="hidden"
+              id="startURL"
+              name="startURL" 
+              value="">
+
             <input
               type="submit"
               value="Setup Experiment"
               id="setupExperiment"
             />
-            <ins id="response"></ins>
+            
+            <b id="response"></b>
+            <mark id="error"></mark>
           </form>
         </div>
         </main>
