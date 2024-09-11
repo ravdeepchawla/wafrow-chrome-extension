@@ -1,23 +1,7 @@
-// Function to inject and execute content script
-function injectContentScript(tabId) {
-    chrome.scripting.executeScript({
-      target: { tabId: tabId },
-      function: getLocalStorageData
-    });
-  }
-  
-// Function to be injected into the page
-function getLocalStorageData() {
-const data = localStorage.getItem('userID');
-if (data) {
-    chrome.runtime.sendMessage({ type: 'localStorageData', data: data });
-}
-}
-   
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     if (changeInfo.status === 'complete' && tab.active) {
-        if (tab.url.includes("127.0.0.1:8000")) {
-            injectContentScript(tabId);
+        if (tab.url.startsWith("https://wafrow.com")) {
+            chrome.tabs.sendMessage(tabId, {action: "getLocalStorage"});
         }
     }
 });

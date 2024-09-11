@@ -68,7 +68,7 @@ chrome.devtools.panels.elements.onSelectionChanged.addListener(updateElementDeta
 
 async function makeGroqRequest(prompt, language) {
 
-    const apiUrl = 'http://127.0.0.1:8000/api/getAlternative';
+    const apiUrl = 'https://wafrow.com/api/getAlternative';
   
     try {
       const response = await fetch(apiUrl, {
@@ -219,7 +219,7 @@ async function callAPI(requestBody) {
       responseMessage.textContent = "";
       errorMessage.textContent = "";
 
-      const response = await fetch("http://127.0.0.1:8000/api/setupExperiment", {
+      const response = await fetch("https://wafrow.com/api/setupExperiment", {
           method: "POST",
           headers: {
               "Content-Type": "application/json"
@@ -235,8 +235,8 @@ async function callAPI(requestBody) {
       }
       //console.log(data);
   } catch (error) {
-      console.error(error);
-      responseMessage.textContent = data.message;
+     // console.error(error);
+      responseMessage.textContent = error;
   } finally {
     button.setAttribute('aria-busy', 'false');
   }
