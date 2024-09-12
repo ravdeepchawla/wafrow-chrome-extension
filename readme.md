@@ -1,6 +1,6 @@
 # Chrome extension for [wafrow](https://wafrow.com)
 
-![Chrome store screenshot](images/Main Screen.jpg)
+![Chrome store screenshot](./images/Main.png)
 
 ## Wafrow is an AI copywriter continuously AB testing landing pages
 Small firms operating in multiple languages struggle to write great copy in all languages. Wafrow is trained on the best ecommerce sites in english, Deutsch, العربية, français, español and Nederlands to continuously increase the last bip of conversion rate, while you sleep.
