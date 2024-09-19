@@ -68,7 +68,7 @@ chrome.devtools.panels.elements.onSelectionChanged.addListener(updateElementDeta
 
 async function makeGroqRequest(prompt, language) {
 
-    const apiUrl = 'https://wafrow.com/api/getAlternative';
+    const apiUrl = 'http://127.0.0.1:8000/api/getAlternative';
   
     try {
       const response = await fetch(apiUrl, {
@@ -132,67 +132,81 @@ document.addEventListener("DOMContentLoaded", (event) => {
       goalURL.placeholder = result.url;
     })
 
-  const form = document.getElementById("createExperiment");
+    const form = document.getElementById("createExperiment");
 
-  form.addEventListener("submit", (event) => {
+    form.addEventListener("submit", (event) => {
       event.preventDefault();
       const formData = new FormData(form);
-      const data = [];
+      createExperiment(formData);
+    })
 
-      for (const [key, value] of formData.entries()) {
-        data[key] = value;
+    const selectedLanguage = document.getElementById('language');
+    const prompt = document.getElementById('control');
+
+    selectedLanguage.addEventListener('change', function(event) {
+      if (event.isTrusted) {       
+        makeGroqRequest(prompt.value, selectedLanguage.value);
       }
+    });
+});
 
-      const requestBody = {};
-      const rolloutpercentage = parseInt(data['rollout']);
+function createExperiment(formData) {
+  const data = [];
+
+  for (const [key, value] of formData.entries()) {
+    data[key] = value;
+  }
+
+  const requestBody = {};
+  const rolloutpercentage = parseInt(data['rollout']);
     
-      const controlString = JSON.stringify({
-        "textString" : data['control'],
-        "elementSelector": data['selectedElement']
-      })
+    const controlString = JSON.stringify({
+      "textString" : data['control'],
+      "elementSelector": data['selectedElement']
+    })
 
-      const treatmentString = JSON.stringify({
-        "textString" : data['treatment'],
-        "elementSelector": data['selectedElement']
-      })
+    const treatmentString = JSON.stringify({
+      "textString" : data['treatment'],
+      "elementSelector": data['selectedElement']
+    })
 
-      const filters =  {
-        "groups": [
-            {
-                "variant": null,
-                "properties": [
-                    {
-                        "key": "orgID",
-                        "type": "person",
-                        "value": [
-                          data['organizationID']
-                        ],
-                        "operator": "exact"
-                    }
-                ],
-                "rollout_percentage": rolloutpercentage
-            }
-        ],
-        "payloads": {
-            "control": controlString,
-            "treatment": treatmentString,
-        },
-        "multivariate": {
-            "variants": [
-                {
-                    "key": "control",
-                    "name": "control",
-                    "rollout_percentage": 50
-                },
-                {
-                    "key": "treatment",
-                    "name": "treatment",
-                    "rollout_percentage": 50
-                }
-            ]
-        }
+    const filters =  {
+      "groups": [
+          {
+              "variant": null,
+              "properties": [
+                  {
+                      "key": "orgID",
+                      "type": "person",
+                      "value": [
+                        data['organizationID']
+                      ],
+                      "operator": "exact"
+                  }
+              ],
+              "rollout_percentage": rolloutpercentage
+          }
+      ],
+      "payloads": {
+          "control": controlString,
+          "treatment": treatmentString,
+      },
+      "multivariate": {
+          "variants": [
+              {
+                  "key": "control",
+                  "name": "control",
+                  "rollout_percentage": 50
+              },
+              {
+                  "key": "treatment",
+                  "name": "treatment",
+                  "rollout_percentage": 50
+              }
+          ]
+      }
     }
- 
+
     requestBody['name'] = data['organizationID'];
     requestBody['key'] = data['experimentName'];
     requestBody['filters'] = JSON.stringify(filters);
@@ -202,10 +216,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
     // console.log(requestBody);
 
-    callAPI(requestBody)
-
-  });
-});
+    callAPI(requestBody);
+}
 
 async function callAPI(requestBody) {
 
@@ -219,7 +231,7 @@ async function callAPI(requestBody) {
       responseMessage.textContent = "";
       errorMessage.textContent = "";
 
-      const response = await fetch("https://wafrow.com/api/setupExperiment", {
+      const response = await fetch("http://127.0.0.1:8000/api/setupExperiment", {
           method: "POST",
           headers: {
               "Content-Type": "application/json"
