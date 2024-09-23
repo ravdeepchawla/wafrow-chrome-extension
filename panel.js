@@ -1,3 +1,4 @@
+const appDomain = "http://127.0.0.1:8000"; // https://wafrow.com
 
 function updateElementDetails() {
 
@@ -68,7 +69,9 @@ chrome.devtools.panels.elements.onSelectionChanged.addListener(updateElementDeta
 
 async function makeGroqRequest(prompt, language) {
 
-    const apiUrl = 'https://wafrow.com/api/getAlternative';
+    const apiUrl = appDomain + '/api/getAlternative';
+    const startURL = document.getElementById('startURL');
+    const personalization = document.getElementById('personalization');
   
     try {
       const response = await fetch(apiUrl, {
@@ -78,7 +81,9 @@ async function makeGroqRequest(prompt, language) {
         },
         body: JSON.stringify({
           "prompt": prompt,
-          "lang": language
+          "lang": language,
+          "pageURL": startURL.value,
+          "personalizationVariable": '[' + personalization.value + ']' 
         })
       });
   
@@ -87,8 +92,9 @@ async function makeGroqRequest(prompt, language) {
       }
   
       const data = await response.json();
-      // console.log(data);
-      const alternatives = data.choices[0].message.content;
+      //console.log(data);
+      //const alternatives = data.choices[0].message.content;
+      const alternatives = data.data;
 
       const output = document.getElementById('treatment');
       output.value = alternatives; // alternatives.join('');
@@ -231,7 +237,7 @@ async function callAPI(requestBody) {
       responseMessage.textContent = "";
       errorMessage.textContent = "";
 
-      const response = await fetch("https://wafrow.com/api/setupExperiment", {
+      const response = await fetch(appDomain + "/api/setupExperiment", {
           method: "POST",
           headers: {
               "Content-Type": "application/json"
