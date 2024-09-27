@@ -170,12 +170,14 @@ function createExperiment(formData) {
     
     const controlString = JSON.stringify({
       "textString" : data['control'],
-      "elementSelector": data['selectedElement']
+      "elementSelector": data['selectedElement'],
+      "pathName": data['startURL']
     })
 
     const treatmentString = JSON.stringify({
       "textString" : data['treatment'],
-      "elementSelector": data['selectedElement']
+      "elementSelector": data['selectedElement'],
+      "pathName": data['startURL']
     })
 
     const filters =  {
