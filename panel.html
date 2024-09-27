@@ -75,23 +75,23 @@
 
             <fieldset>
               <label>
-                Test: Wafrow AI copy
+                Optional: Add personalization variables
                 <input
-                  name="treatment"
-                  id="treatment"
-                  placeholder=""
-                  required
+                  name="personalization"
+                  id="personalization"
+                  placeholder="Use liquid format: &ldquo;{{firstName}}&ldquo; , &ldquo;{{city}}&ldquo;"
                 />
               </label>
             </fieldset>
 
             <fieldset>
               <label>
-                Optional: Add personalization variables
+                Test: Wafrow AI copy
                 <input
-                  name="personalization"
-                  id="personalization"
-                  placeholder="Use liquid format: '{{firstName}}' , '{{city}}'"
+                  name="treatment"
+                  id="treatment"
+                  placeholder=""
+                  required
                 />
               </label>
             </fieldset>
@@ -110,7 +110,7 @@
                 <input
                   name="goalURL"
                   id="goalURL"
-                  placeholder="https://example.com/success"
+                  placeholder="/success"
                   required
                 />
               </label>
@@ -122,11 +122,17 @@
               name="organizationID" 
               value="">
 
-              <input 
-              type="hidden"
-              id="startURL"
-              name="startURL" 
-              value="">
+            <input 
+            type="hidden"
+            id="domain"
+            name="domain" 
+            value="">
+
+            <input 
+            type="hidden"
+            id="startURL"
+            name="startURL" 
+            value="">
 
             <input
               type="submit"

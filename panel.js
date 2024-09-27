@@ -1,4 +1,4 @@
-const appDomain = "http://127.0.0.1:8000"; // https://wafrow.com
+const appDomain = "https://wafrow.com"; // "http://127.0.0.1:8000";
 
 function updateElementDetails() {
 
@@ -70,9 +70,9 @@ chrome.devtools.panels.elements.onSelectionChanged.addListener(updateElementDeta
 async function makeGroqRequest(prompt, language) {
 
     const apiUrl = appDomain + '/api/getAlternative';
+    const domain = document.getElementById('domain');
     const startURL = document.getElementById('startURL');
-    const personalization = document.getElementById('personalization');
-  
+
     try {
       const response = await fetch(apiUrl, {
         method: 'POST',
@@ -82,8 +82,8 @@ async function makeGroqRequest(prompt, language) {
         body: JSON.stringify({
           "prompt": prompt,
           "lang": language,
-          "pageURL": startURL.value,
-          "personalizationVariable": '[' + personalization.value + ']' 
+          "pageURL": domain.value+startURL.value,
+          "personalizationVariable": '[' + document.getElementById('personalization').value + ']',
         })
       });
   
@@ -133,9 +133,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
       langSelector.value = result.language;
 
       const startURL = document.getElementById('startURL');
-      const goalURL = document.getElementById('goalURL')
-      startURL.value = result.url;
-      goalURL.placeholder = result.url;
+      const url = new URL(result.url)
+      startURL.value = url.pathname;
+
+      const domain = document.getElementById('domain');
+      domain.value = url.protocol + '//' + url.hostname;
     })
 
     const form = document.getElementById("createExperiment");
@@ -217,6 +219,7 @@ function createExperiment(formData) {
     requestBody['key'] = data['experimentName'];
     requestBody['filters'] = JSON.stringify(filters);
     requestBody['language'] = data['language'];
+    requestBody['domain'] = data['domain'];
     requestBody['startURL'] = data['startURL'];
     requestBody['goalURL'] = data['goalURL'];
 
