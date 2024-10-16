@@ -1,4 +1,4 @@
-const appDomain = "https://wafrow.com"; // "http://127.0.0.1:8000";
+const appDomain = "http://127.0.0.1:8000"; // "http://127.0.0.1:8000"; // "https://wafrow.com";
 
 function updateElementDetails() {
 
@@ -69,15 +69,24 @@ chrome.devtools.panels.elements.onSelectionChanged.addListener(updateElementDeta
 
 async function makeGroqRequest(prompt, language) {
 
-    const apiUrl = appDomain + '/api/getAlternative';
+    const apiUrl = appDomain + '/api/getAlternativeChrome';
     const domain = document.getElementById('domain');
     const startURL = document.getElementById('startURL');
+    const loadingTreatment = document.getElementById('loadingTreatment');
+    const treatment = document.getElementById('treatment');
+
+    const token = document.getElementById('organizationID').value;
+
+    loadingTreatment.setAttribute('aria-busy', 'true');
+    treatment.value = '...';
 
     try {
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept':'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           "prompt": prompt,
@@ -92,12 +101,11 @@ async function makeGroqRequest(prompt, language) {
       }
   
       const data = await response.json();
-      //console.log(data);
-      //const alternatives = data.choices[0].message.content;
       const alternatives = data.data;
 
-      const output = document.getElementById('treatment');
-      output.value = alternatives; // alternatives.join('');
+      const treatment = document.getElementById('treatment');
+      treatment.value = alternatives; // alternatives.join('');
+      loadingTreatment.setAttribute('aria-busy', 'false');
       
       return data;
     } catch (error) {
@@ -106,20 +114,23 @@ async function makeGroqRequest(prompt, language) {
     }
   }
 
-document.addEventListener("DOMContentLoaded", (event) => {
-  if(checkLoginStatus()) {
+document.addEventListener("DOMContentLoaded", async (event) => {
+  const isLoggedIn = await checkLoginStatus();
+
+  if(isLoggedIn) {
     setupExperimentForm();
   };
 });
 
-function setupExperimentForm() {
+async function setupExperimentForm() {
   const rollout = document.getElementById('rollout');
   rollout.addEventListener('input', () => {
     rolloutpercentage.textContent = rollout.value;
   });
 
-  getLanguageURL()
-    .then(result => { 
+  try {
+      const result = await getLanguageURL();
+      console.log(result);
       const langSelector = document.getElementById('language');
       langSelector.value = result.language;
 
@@ -129,7 +140,10 @@ function setupExperimentForm() {
 
       const domain = document.getElementById('domain');
       domain.value = url.protocol + '//' + url.hostname;
-    })
+
+  } catch (error) {
+      console.error("Error getting language and URL:", error);
+    }
 
     const form = document.getElementById("createExperiment");
 
@@ -150,19 +164,23 @@ function setupExperimentForm() {
   }
 
 function checkLoginStatus() {
-  chrome.storage.sync.get(['apiToken'], function(result) {
-    if (result.apiToken !== undefined) {
-    const apiToken = document.getElementById('organizationID');
-    apiToken.value = result.apiToken;
+  return new Promise((resolve) => {
+    chrome.storage.sync.get(['apiToken'], function(result) {
+      if (result.apiToken !== undefined) {
+      const apiToken = document.getElementById('organizationID');
+      apiToken.value = result.apiToken;
 
-    const notLoggedIn = document.getElementById('notLoggedIn');
-    notLoggedIn.style.display = "none";
+      const notLoggedIn = document.getElementById('notLoggedIn');
+      notLoggedIn.style.display = "none";
 
-    const loggedIn = document.getElementById('loggedIn');
-    loggedIn.style.display = "block";
-    return true;
-    } else return false;
-  })
+      const loggedIn = document.getElementById('loggedIn');
+      loggedIn.style.display = "block";
+      resolve(true);
+      } else {
+        resolve(false);
+      }
+    });
+  });
 }
 
 function createExperiment(formData) {
@@ -272,34 +290,27 @@ async function callAPI(requestBody) {
   }
 }
 
-function getLanguageURL() {
+async function getLanguageURL() {
   return new Promise((resolve, reject) => {
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    chrome.tabs.query({active: true, currentWindow: true}, async (tabs) => {
+      
       if (chrome.runtime.lastError) {
         reject(new Error(chrome.runtime.lastError.message));
-      } else if (tabs.length === 0) {
-        reject(new Error("No active tab found"));
-      } else {
-        chrome.tabs.detectLanguage(tabs[0].id, function(language) {
-          if (chrome.runtime.lastError) {
-            reject(new Error(chrome.runtime.lastError.message));
-          } else {
-            resolve({language: language, url: tabs[0].url});
-          }
-        });
+        return;
       }
-    });
-  });
-}
 
-function userKey() {
-  return new Promise((resolve, reject) => {
-    chrome.storage.local.get(["userID"], (result) => {
-      if (chrome.runtime.lastError) {
-        reject(chrome.runtime.lastError);
-      } else {
-        // console.log(result);
-        resolve(result);
+      if (tabs.length === 0) {
+        reject(new Error("No active tab found"));
+        return;
+      }
+
+      const tab = tabs[0];
+    
+      try {
+        const language = await chrome.tabs.detectLanguage(tab.id);
+        resolve({language, url: tab.url});
+      } catch (error) {
+        reject(new Error(`Failed to detect language: ${error.message}`));
       }
     });
   });
