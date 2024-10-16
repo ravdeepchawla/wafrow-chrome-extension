@@ -1,14 +1,8 @@
- chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-    if (changeInfo.status === 'complete' && tab.active) {
-        if (tab.url.startsWith("https://wafrow.com")) {
-            chrome.tabs.sendMessage(tabId, {action: "getLocalStorage"});
-        }
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    if (request.getApiToken) {
+      chrome.storage.sync.get(['apiToken'], function(result) {
+        sendResponse({apiToken: result.apiToken});
+      });
+      return true;
     }
-});
-
-// Listen for messages from the injected script
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.type === 'localStorageData') {
-        chrome.storage.local.set({ 'userID': message.data })
-    }
-});
+  });

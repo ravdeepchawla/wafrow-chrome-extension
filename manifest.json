@@ -13,16 +13,7 @@
         "tabs",
         "storage"
     ],
-    "host_permissions": [
-        "https://wafrow.com/*"
-    ],
     "background": {
         "service_worker": "background.js"
-    },
-    "content_scripts": [
-    {
-      "matches": ["https://wafrow.com/*"],
-      "js": ["content-script.js"]
     }
-  ]
 }

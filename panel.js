@@ -106,22 +106,13 @@ async function makeGroqRequest(prompt, language) {
     }
   }
 
-document.addEventListener("DOMContentLoaded", (event) => {  
+document.addEventListener("DOMContentLoaded", (event) => {
+  if(checkLoginStatus()) {
+    setupExperimentForm();
+  };
+});
 
-  userKey()
-    .then((result) => {
-      if (result.userID !== undefined) {
-      const organizationID = document.getElementById('organizationID');
-      organizationID.value = result.userID;
-
-      const notLoggedIn = document.getElementById('notLoggedIn');
-      notLoggedIn.style.display = "none";
-
-      const loggedIn = document.getElementById('loggedIn');
-      loggedIn.style.display = "block";
-      }
-    })
-  
+function setupExperimentForm() {
   const rollout = document.getElementById('rollout');
   rollout.addEventListener('input', () => {
     rolloutpercentage.textContent = rollout.value;
@@ -156,7 +147,23 @@ document.addEventListener("DOMContentLoaded", (event) => {
         makeGroqRequest(prompt.value, selectedLanguage.value);
       }
     });
-});
+  }
+
+function checkLoginStatus() {
+  chrome.storage.sync.get(['apiToken'], function(result) {
+    if (result.apiToken !== undefined) {
+    const apiToken = document.getElementById('organizationID');
+    apiToken.value = result.apiToken;
+
+    const notLoggedIn = document.getElementById('notLoggedIn');
+    notLoggedIn.style.display = "none";
+
+    const loggedIn = document.getElementById('loggedIn');
+    loggedIn.style.display = "block";
+    return true;
+    } else return false;
+  })
+}
 
 function createExperiment(formData) {
   const data = [];
@@ -297,3 +304,13 @@ function userKey() {
     });
   });
 }
+
+document.getElementById('apiForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const token = document.getElementById('apiToken').value;
+  chrome.storage.sync.set({apiToken: token}, function() {
+      if(checkLoginStatus()) {
+      setupExperimentForm();
+    };
+  });
+});

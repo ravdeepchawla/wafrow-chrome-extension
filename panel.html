@@ -15,12 +15,17 @@
         <div id="notLoggedIn">
           <hgroup>
           <h1>Welcome aboard 👋</h1>
-          <p>Please login to continue</p>
+          <p>Please add an API token for us to log you in.</p>
           </hgroup>
-          <a role="button" target="_blank" href="https://wafrow.com/login">Login</a>
+          
+          <form id="apiForm">
+            <fieldset role="group">
+            <input type="text" id="apiToken" placeholder="Enter API Token">
+            <input type="submit" value="Save Token"></input>
+            </fieldset>
+        </form>
 
           <hr />
-          <small>If you just logged in and this still shows, please close the tab and reopen chrome inspector.</small>
         </div>
         <div id="loggedIn" style="display:none">
         <h1>Experiment Setup</h1>
@@ -118,8 +123,8 @@
            
             <input 
               type="hidden"
-              id="organizationID"
-              name="organizationID" 
+              id="apiToken"
+              name="apiToken" 
               value="">
 
             <input 
