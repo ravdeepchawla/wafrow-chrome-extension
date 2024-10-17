@@ -214,7 +214,7 @@ function createExperiment(formData) {
                       "key": "orgID",
                       "type": "person",
                       "value": [
-                        data['organizationID']
+                        data['organizationID'] //TODO
                       ],
                       "operator": "exact"
                   }
@@ -242,7 +242,7 @@ function createExperiment(formData) {
       }
     }
 
-    requestBody['name'] = data['organizationID'];
+    requestBody['name'] = data['organizationID']; //TODO
     requestBody['key'] = data['experimentName'];
     requestBody['filters'] = JSON.stringify(filters);
     requestBody['language'] = data['language'];
@@ -260,9 +260,9 @@ async function callAPI(requestBody) {
   const button = document.getElementById('setupExperiment');
   const responseMessage = document.getElementById('response');
   const errorMessage = document.getElementById('error');
+  const token = document.getElementById('organizationID').value;
 
   try {
-    //TODO: switch to public API
       button.setAttribute('aria-busy', 'true');
       responseMessage.textContent = "";
       errorMessage.textContent = "";
@@ -270,7 +270,9 @@ async function callAPI(requestBody) {
       const response = await fetch(appDomain + "/api/setupExperiment", {
           method: "POST",
           headers: {
-              "Content-Type": "application/json"
+              "Content-Type": "application/json",
+              "Accept":"application/json",
+              "Authorization": `Bearer ${token}`, 
           },
           body: JSON.stringify(requestBody)
       });
