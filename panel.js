@@ -1,4 +1,4 @@
-const appDomain = "http://127.0.0.1:8000"; // "http://127.0.0.1:8000"; // "https://wafrow.com";
+const appDomain = "https://wafrow.com"; // "http://127.0.0.1:8000"; // "https://wafrow.com";
 
 function updateElementDetails() {
 
@@ -130,7 +130,7 @@ async function setupExperimentForm() {
 
   try {
       const result = await getLanguageURL();
-      console.log(result);
+      //console.log(result);
       const langSelector = document.getElementById('language');
       langSelector.value = result.language;
 
@@ -191,7 +191,6 @@ function createExperiment(formData) {
   }
 
   const requestBody = {};
-  const rolloutpercentage = parseInt(data['rollout']);
     
     const controlString = JSON.stringify({
       "textString" : data['control'],
@@ -206,22 +205,6 @@ function createExperiment(formData) {
     })
 
     const filters =  {
-      "groups": [
-          {
-              "variant": null,
-              "properties": [
-                  {
-                      "key": "orgID",
-                      "type": "person",
-                      "value": [
-                        data['organizationID'] //TODO
-                      ],
-                      "operator": "exact"
-                  }
-              ],
-              "rollout_percentage": rolloutpercentage
-          }
-      ],
       "payloads": {
           "control": controlString,
           "treatment": treatmentString,
@@ -242,9 +225,9 @@ function createExperiment(formData) {
       }
     }
 
-    requestBody['name'] = data['organizationID']; //TODO
     requestBody['key'] = data['experimentName'];
     requestBody['filters'] = JSON.stringify(filters);
+    requestBody['rollout'] = parseInt(data['rollout']);
     requestBody['language'] = data['language'];
     requestBody['domain'] = data['domain'];
     requestBody['startURL'] = data['startURL'];
@@ -278,9 +261,11 @@ async function callAPI(requestBody) {
       });
       const data = await response.json();
       
-      responseMessage.textContent = data.message;
-
-      if (data.error.detail) {
+      if (data.message) {
+        responseMessage.textContent = data.message;
+      }
+      
+      if (data.error && data.error.detail) {
         errorMessage.textContent = data.error.detail;
       }
       //console.log(data);
