@@ -1,4 +1,4 @@
-const appDomain = "https://wafrow.com"; // "http://127.0.0.1:8000"; // "https://wafrow.com";
+const appDomain = "https://wafrow.com"; //"https://wafrow.com"; // ""; // "https://wafrow.com";
 
 function updateElementDetails() {
 
@@ -69,7 +69,7 @@ chrome.devtools.panels.elements.onSelectionChanged.addListener(updateElementDeta
 
 async function makeGroqRequest(prompt, language) {
 
-    const apiUrl = appDomain + '/api/getAlternativeChrome';
+    const apiUrl = appDomain + '/api/getAlternative';
     const domain = document.getElementById('domain');
     const startURL = document.getElementById('startURL');
     const loadingTreatment = document.getElementById('loadingTreatment');
@@ -92,7 +92,7 @@ async function makeGroqRequest(prompt, language) {
           "prompt": prompt,
           "lang": language,
           "pageURL": domain.value+startURL.value,
-          "personalizationVariable": '[' + document.getElementById('personalization').value + ']',
+          "personalizationVariable": document.getElementById('personalization').value,
         })
       });
   
@@ -305,10 +305,38 @@ async function getLanguageURL() {
 
 document.getElementById('apiForm').addEventListener('submit', function(e) {
   e.preventDefault();
-  const token = document.getElementById('apiToken').value;
-  chrome.storage.sync.set({apiToken: token}, function() {
-      if(checkLoginStatus()) {
-      setupExperimentForm();
-    };
-  });
+  const token = document.getElementById('apiToken');
+  const helper = document.getElementById('apiTokenHelper')
+
+  token.setAttribute('aria-busy', 'true');
+    fetch(appDomain + "/api/me", {
+          method: "GET",
+          headers: {
+              "Content-Type": "application/json",
+              "Accept":"application/json",
+              "Authorization": `Bearer ${token.value}`, 
+          }
+      })
+      .then(response => {
+        if (!response.ok) {
+          token.setAttribute('aria-busy', 'false');
+          token.setAttribute('aria-invalid', 'true');
+          throw new Error('API request failed');
+        }
+        return response.json();
+      })
+      .then(data => {
+        chrome.storage.sync.set({apiToken: token.value}, function() {
+          if(checkLoginStatus()) {
+          setupExperimentForm();
+          };
+        });
+        token.setAttribute('aria-busy', 'false');
+      })
+      .catch(error => {
+        token.setAttribute('aria-busy', 'false');
+        token.setAttribute('aria-invalid', 'true');
+        helper.innerHTML="Please check if the API token is from <a href='"+appDomain+"/dashboard/settings' target='_blank'>settings</a>";
+        console.error('API call failed:', error);        
+      });
 });
