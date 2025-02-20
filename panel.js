@@ -1,4 +1,4 @@
-const appDomain = "https://wafrow.com"; //"https://wafrow.com"; // ""; // "https://wafrow.com";
+const appDomain = "https://wafrow.com"; // "http://127.0.0.1:8000";
 
 function updateElementDetails() {
 
@@ -193,14 +193,22 @@ function createExperiment(formData) {
   const requestBody = {};
     
     const controlString = JSON.stringify({
-      "textString" : data['control'],
-      "elementSelector": data['selectedElement'],
+      "elements": [
+        {
+          "content" : data['control'],
+          "elementSelector": data['selectedElement'],
+        }
+      ],
       "pathName": data['startURL']
     })
 
     const treatmentString = JSON.stringify({
-      "textString" : data['treatment'],
-      "elementSelector": data['selectedElement'],
+      "elements": [
+        {
+          "content" : data['treatment'],
+          "elementSelector": data['selectedElement'],
+        }
+      ],
       "pathName": data['startURL']
     })
 
